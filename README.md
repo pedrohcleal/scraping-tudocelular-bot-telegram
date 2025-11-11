@@ -42,12 +42,6 @@ Este projeto utiliza:
 * Requests
 * Dotenv
 
-Instale o Playwright após instalar as libs:
-
-```bash
-playwright install
-```
-
 ---
 
 # ⚙️ **Configuração do ambiente**
@@ -82,16 +76,8 @@ source venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
-playwright install
-```
-
----
-
-### Instalar dependências:
-
-```bash
-uv pip install -r requirements.txt
 playwright install chromium
+playwright install-deps chromium
 ```
 
 ---
