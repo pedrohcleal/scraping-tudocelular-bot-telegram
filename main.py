@@ -41,7 +41,6 @@ def send_text_message(msg, chat_id=CHAT_ID):
 
 # https://www.tudocelular.com/Samsung/fichas-tecnicas/n9846/Samsung-Galaxy-S25-Plus.html 
 #                                                       ↳ model_id = 9846
-
 model_ids = {
     "s25_edge": 9847,
     "s25_base": 9845,
@@ -93,20 +92,23 @@ if __name__ == "__main__":
     
     send_text_message("Bot de monitoramento de preços iniciado.")
     
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page: Page = browser.new_page()
-        while True: 
-            sleep(5)
-            modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
-            for model_key in modelos_cel:
-                if model_key == 's25_ultra':
-                    precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))
-                elif model_key == 's25_plus':
-                    precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
-                elif model_key == 's25_base':
-                    precos_s25_base.append(busca_precos_min(page, model_key, precos_s25_base))
-                elif model_key == 's25_edge':
-                    precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
-                elif model_key == 's24_ultra':
-                    precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page: Page = browser.new_page()
+            while True: 
+                sleep(5)
+                modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
+                for model_key in modelos_cel:
+                    if model_key == 's25_ultra':
+                        precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))
+                    elif model_key == 's25_plus':
+                        precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
+                    elif model_key == 's25_base':
+                        precos_s25_base.append(busca_precos_min(page, model_key, precos_s25_base))
+                    elif model_key == 's25_edge':
+                        precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
+                    elif model_key == 's24_ultra':
+                        precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
+    except:
+        send_text_message('ocorreu algum erro no bot.')
