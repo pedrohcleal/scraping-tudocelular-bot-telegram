@@ -27,7 +27,6 @@ def get_chat_id():
 
 def send_text_message(msg, chat_id=CHAT_ID):
     sleep(1.1)
-    TOKEN = "8207948976:AAEh9JeCx5yORuzFBa3eFcs3cSP3mjFbhA8"
 
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
@@ -79,7 +78,8 @@ def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
         send_text_message(f"Novo menor preço para o modelo {txt_msg}")
     else:
         print(f"Menor preço atual permanece: R$ {preco_min:.2f}")
-
+    
+    sleep(5)
     return {'preco': preco_min,'link': link}
         
 
@@ -97,11 +97,10 @@ if __name__ == "__main__":
             browser = p.chromium.launch(headless=True)
             page: Page = browser.new_page()
             while True: 
-                sleep(5)
                 modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
                 for model_key in modelos_cel:
                     if model_key == 's25_ultra':
-                        precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))
+                        precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))                        
                     elif model_key == 's25_plus':
                         precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
                     elif model_key == 's25_base':
