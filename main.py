@@ -110,5 +110,7 @@ if __name__ == "__main__":
                         precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
                     elif model_key == 's24_ultra':
                         precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
-    except:
-        send_text_message('ocorreu algum erro no bot.')
+    except Exception as e:
+        print('ocorreu uma exceção')
+        send_text_message('ocorreu algum erro no bot.: ' + str(e))
+        raise e
