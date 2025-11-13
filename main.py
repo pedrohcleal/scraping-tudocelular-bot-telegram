@@ -91,7 +91,7 @@ if __name__ == "__main__":
     precos_s24_ultra: list[dict] = []
     
     send_text_message("Bot de monitoramento de preços iniciado.")
-    
+    exec_n = 0
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -109,6 +109,10 @@ if __name__ == "__main__":
                         precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
                     elif model_key == 's24_ultra':
                         precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
+                exec_n += 0.5
+                if exec_n % 40 == 0:
+                    send_text_message('Bot rodando...')
+            
     except Exception as e:
         print('ocorreu uma exceção')
         send_text_message('ocorreu algum erro no bot.: ' + str(e))
