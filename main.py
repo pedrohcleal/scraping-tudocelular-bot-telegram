@@ -1,5 +1,6 @@
 from playwright.sync_api._generated import Page
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError
+
 import requests
 from time import sleep
 from dotenv import load_dotenv
@@ -52,7 +53,7 @@ base_url = 'https://www.tudocelular.com/new_files/ajax/pricelist.php?modelid='
 
 def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
     preco_min = 999999
-    page.goto(base_url + str(model_ids[model_key]), wait_until="domcontentloaded")
+    page.goto(base_url + str(model_ids[model_key]), wait_until="domcontentloaded", timeout=50000)
     blocos = page.locator('#table1 > *')
     for i in range(blocos.count()):
         bloco = blocos.nth(i)
@@ -79,7 +80,7 @@ def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
     else:
         print(f"Menor preço atual permanece: R$ {preco_min:.2f}")
     
-    sleep(5)
+    sleep(15)
     return {'preco': preco_min,'link': link}
         
 
@@ -93,26 +94,35 @@ if __name__ == "__main__":
     send_text_message("Bot de monitoramento de preços iniciado.")
     exec_n = 0
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page: Page = browser.new_page()
-            while True: 
-                modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
-                for model_key in modelos_cel:
-                    if model_key == 's25_ultra':
-                        precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))                        
-                    elif model_key == 's25_plus':
-                        precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
-                    elif model_key == 's25_base':
-                        precos_s25_base.append(busca_precos_min(page, model_key, precos_s25_base))
-                    elif model_key == 's25_edge':
-                        precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
-                    elif model_key == 's24_ultra':
-                        precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
-                exec_n += 0.5
-                if exec_n % 40 == 0:
-                    send_text_message('Bot rodando...')
-            
+        erros = 0
+        last_erro = None
+        while True:
+            try:
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)
+                    page: Page = browser.new_page()
+                    modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
+                    for model_key in modelos_cel:
+                        if model_key == 's25_ultra':
+                            precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))                        
+                        elif model_key == 's25_plus':
+                            precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
+                        elif model_key == 's25_base':
+                            precos_s25_base.append(busca_precos_min(page, model_key, precos_s25_base))
+                        elif model_key == 's25_edge':
+                            precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
+                        elif model_key == 's24_ultra':
+                            precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
+                    exec_n += 1
+                    if exec_n % 30 == 0:
+                        send_text_message('Bot rodando...')
+            except TimeoutError as e:
+                send_text_message('ocorreu um timeout')
+                print('ocorreu um timeout')
+                erros += 1
+                last_erro = e
+            if erros > 15 and last_erro:
+                raise last_erro
     except Exception as e:
         print('ocorreu uma exceção')
         send_text_message('ocorreu algum erro no bot.: ' + str(e))
