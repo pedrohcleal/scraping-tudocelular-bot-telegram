@@ -52,6 +52,7 @@ base_url = 'https://www.tudocelular.com/new_files/ajax/pricelist.php?modelid='
 
 
 def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
+    base_url_link = 'https://www.tudocelular.com'
     preco_min = 999999
     page.goto(base_url + str(model_ids[model_key]), wait_until="domcontentloaded", timeout=50000)
     blocos = page.locator('#table1 > *')
@@ -70,13 +71,12 @@ def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
             if link is None:
                 send_text_message("Erro: Link não encontrado no bloco de preço - Script parado")
                 raise ValueError("Link não encontrado no bloco de preço")
-            preco_min = preco
+            preco_min: float = preco
     
-    base_url_link = 'https://www.tudocelular.com'
-    if preco_min not in [x['preco'] for x in precos_lista]:
+    if preco_min < min([x['preco'] for x in precos_lista]):
         print(f"Novo menor preço encontrado: R$ {preco_min:.2f}")
         txt_msg = f"Novo menor preço para o modelo {model_key.replace('_', ' ').title()}: R$ {preco_min:.2f}\nLink: {base_url_link + link}"
-        send_text_message(f"Novo menor preço para o modelo {txt_msg}")
+        send_text_message(txt_msg)
     else:
         print(f"Menor preço atual permanece: R$ {preco_min:.2f}")
     
@@ -101,18 +101,9 @@ if __name__ == "__main__":
                 with sync_playwright() as p:
                     browser = p.chromium.launch(headless=True)
                     page: Page = browser.new_page()
-                    modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
-                    for model_key in modelos_cel:
-                        if model_key == 's25_ultra':
-                            precos_s25_ultra.append(busca_precos_min(page, model_key, precos_s25_ultra))                        
-                        elif model_key == 's25_plus':
-                            precos_s25_plus.append(busca_precos_min(page, model_key, precos_s25_plus))
-                        elif model_key == 's25_base':
-                            precos_s25_base.append(busca_precos_min(page, model_key, precos_s25_base))
-                        elif model_key == 's25_edge':
-                            precos_s25_edge.append(busca_precos_min(page, model_key, precos_s25_edge))
-                        elif model_key == 's24_ultra':
-                            precos_s24_ultra.append(busca_precos_min(page, model_key, precos_s24_ultra))
+                    #modelos_cel = ['s25_ultra', 's25_plus', 's25_base', 's25_edge', 's24_ultra']
+                    precos_s25_ultra.append(busca_precos_min(page, 's25_ultra', precos_s25_ultra))                        
+                        
                     exec_n += 1
                     if exec_n % 30 == 0:
                         send_text_message('Bot rodando...')
