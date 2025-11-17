@@ -73,7 +73,7 @@ def busca_precos_min(page: Page, model_key: str, precos_lista: list[dict]):
                 raise ValueError("Link não encontrado no bloco de preço")
             preco_min: float = preco
     
-    if preco_min < min([x['preco'] for x in precos_lista]):
+    if not precos_lista or preco_min < min([x['preco'] for x in precos_lista]):
         print(f"Novo menor preço encontrado: R$ {preco_min:.2f}")
         txt_msg = f"Novo menor preço para o modelo {model_key.replace('_', ' ').title()}: R$ {preco_min:.2f}\nLink: {base_url_link + link}"
         send_text_message(txt_msg)
